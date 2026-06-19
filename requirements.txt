@@ -1,5 +1,5 @@
-python-telegram-bot==20.7
-google-generativeai==0.7.2
-supabase>=2.9.0
+python-telegram-bot>=21.2
+google-generativeai
+supabase
 httpx>=0.28.0
-requests==2.31.0
+requests
