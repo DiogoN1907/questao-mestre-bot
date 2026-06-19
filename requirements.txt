@@ -1,5 +1,3 @@
-python-telegram-bot>=21.2
-google-generativeai
-supabase
-httpx>=0.28.0
-requests
+python-telegram-bot==20.7
+google-generativeai==0.7.2
+psycopg2-binary==2.9.9
