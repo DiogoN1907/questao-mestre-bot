@@ -106,7 +106,7 @@ def estatisticas(user_id):
 
 # ── ANÁLISE COM GEMINI ────────────────────────────────────────
 def analisar_com_gemini(texto=None, imagem_bytes=None, imagem_mime=None):
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     parts = [SYSTEM_PROMPT]
     if imagem_bytes:
         parts.append({"mime_type": imagem_mime, "data": imagem_bytes})
