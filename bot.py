@@ -1,8 +1,8 @@
 import os
 import json
 import logging
-import psycopg2
-import psycopg2.extras
+import pg8000.dbapi
+import urllib.parse
 import google.generativeai as genai
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -30,7 +30,14 @@ Formato exato:
 
 # ── DB HELPERS ────────────────────────────────────────────────
 def get_conn():
-    return psycopg2.connect(DATABASE_URL)
+    parsed = urllib.parse.urlparse(DATABASE_URL)
+    return pg8000.dbapi.connect(
+        user=parsed.username,
+        password=urllib.parse.unquote(parsed.password),
+        host=parsed.hostname,
+        port=parsed.port or 5432,
+        database=parsed.path.lstrip("/"),
+    )
 
 def init_db():
     conn = get_conn()
@@ -66,9 +73,13 @@ def salvar_questao(user_id, dados, tipo, ia):
     cur.close()
     conn.close()
 
+def _rows_to_dicts(cur, rows):
+    cols = [c[0] for c in cur.description]
+    return [dict(zip(cols, row)) for row in rows]
+
 def buscar_questoes(user_id, disciplina=None, limit=5):
     conn = get_conn()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor()
     if disciplina:
         cur.execute("""
             select * from questoes where telegram_user_id=%s and disciplina ilike %s
@@ -79,16 +90,16 @@ def buscar_questoes(user_id, disciplina=None, limit=5):
             select * from questoes where telegram_user_id=%s
             order by created_at desc limit %s
         """, (str(user_id), limit))
-    rows = cur.fetchall()
+    rows = _rows_to_dicts(cur, cur.fetchall())
     cur.close()
     conn.close()
     return rows
 
 def estatisticas(user_id):
     conn = get_conn()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur = conn.cursor()
     cur.execute("select * from questoes where telegram_user_id=%s", (str(user_id),))
-    rows = cur.fetchall()
+    rows = _rows_to_dicts(cur, cur.fetchall())
     cur.close()
     conn.close()
     return rows
