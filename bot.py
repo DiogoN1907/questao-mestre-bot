@@ -32,7 +32,7 @@ Formato exato:
 
 # ── ANÁLISE COM GEMINI ────────────────────────────────────────
 def analisar_com_gemini(texto=None, imagem_bytes=None, imagem_mime=None):
-    model = genai.GenerativeModel("gemini-1.5-pro-latest")
+    model = genai.GenerativeModel("gemini-3.5-flash")
     parts = [SYSTEM_PROMPT]
     if imagem_bytes:
         parts.append({"mime_type": imagem_mime, "data": imagem_bytes})
